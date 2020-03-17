@@ -12,8 +12,10 @@ class Helper {
 
   Future<List<Country>> getAllCountry() async {
     List<Country> allCountry = [];
+
     final response = await _client.get(
-        "https://www.worldometers.info/coronavirus/countries-where-coronavirus-has-spread/");
+        "https://www.worldometers.info/coronavirus/");
+    //"https://www.worldometers.info/coronavirus/countries-where-coronavirus-has-spread/
     final document = parse(response.body);
     final allCountryTd = document.getElementsByTagName('tbody');
 
@@ -24,15 +26,28 @@ class Helper {
 
         final countryName = perCountry.getElementsByTagName('td')[0].text;
         final cases = perCountry.getElementsByTagName('td')[1].text;
-        final deaths = perCountry.getElementsByTagName('td')[2].text;
-        print(deaths);
-        final country2 =
-        Country(countryName: countryName, cases: cases, deaths: deaths);
-        allCountry.add(country2);
+        final deaths = perCountry.getElementsByTagName('td')[3].text;
+        final recovered = perCountry.getElementsByTagName('td')[5].text;
+        print (countryName);
+        print (cases);
+        print (deaths);
+        print(recovered);
+
+        if (recovered == "Total:"){
 
 
+        } else {
+          final country2 =
+          Country(countryName: countryName,
+              cases: cases,
+              deaths: deaths,
+              recovered: recovered);
+          allCountry.add(country2);
+        }
       }
     }
     return allCountry;
   }
+
+
 }

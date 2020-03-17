@@ -6,11 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:corona/service.dart';
 import 'package:flutter/painting.dart';
 
-
-enum Language {ENGLISH,TURKISH}
+enum Language { ENGLISH, TURKISH }
 
 Language language = Language.ENGLISH;
-
 
 class IndexPage extends StatefulWidget {
   @override
@@ -18,17 +16,16 @@ class IndexPage extends StatefulWidget {
 }
 
 class _IndexPageState extends State<IndexPage> {
-  TextStyle titleStyle = TextStyle(color: Color(0xFFf44336));
+  TextStyle titleStyle = TextStyle(color: Colors.black, fontSize: 20.0);
 
   @override
   void initState() {
     // TODO: implement initState
 
-
     if (ui.window.locale.languageCode == 'tr') {
       language = Language.TURKISH;
-    }else{
-      language = Language.TURKISH;
+    } else {
+      language = Language.ENGLISH;
     }
   }
 
@@ -41,26 +38,12 @@ class _IndexPageState extends State<IndexPage> {
           child: Column(
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.all(11),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      language == Language.ENGLISH
-                          ? "Corona News"
-                          : "Koronavirüs Haber",
-                      style: TextStyle(color: Colors.black),
-                      textAlign: TextAlign.end,
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
                     child: ClipRRect(
-                      child: Image.asset('images/deee.png',),
+                      child: Image.asset(
+                        'images/deee.png',
+                      ),
                       borderRadius: BorderRadius.circular(7.0),
                     ),
                     decoration: BoxDecoration(
@@ -74,6 +57,80 @@ class _IndexPageState extends State<IndexPage> {
                           )
                         ])),
               ),
+              Padding(
+                padding: const EdgeInsets.all(11),
+                child: FutureBuilder<List<Country>>(
+                  future: _service.getAllCountry(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<List<Country>> snapshot) {
+                    switch (snapshot.connectionState) {
+                      case ConnectionState.done:
+                        return Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Container(
+
+
+                            child: SizedBox(
+                              height: 265.0,
+                              child: ListView.builder(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: false,
+                                  itemCount: 1,
+                                  itemBuilder: (BuildContext context, index) {
+
+                                    var _cases = snapshot.data.last.cases;
+                                    var _deaths = snapshot.data.last.deaths;
+                                    var _recovered =
+                                        snapshot.data.last.recovered;
+                                    return Column(
+                                      children: <Widget>[
+                                        Text(language==Language.ENGLISH?
+                                            "Coronavirus Cases":"Corona Vakaları",
+                                            style: TextStyle(fontSize: 35.0,color: Colors.black),
+                                            textAlign: TextAlign.left),
+                                        Text(_cases,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(fontSize: 40.0,color: Colors.blueGrey)),
+                                        Text(language==Language.ENGLISH?
+                                            "Deaths":"Ölümler",
+                                            style: TextStyle(fontSize: 35.0,color: Colors.black),
+                                            textAlign: TextAlign.left),
+                                        Text(_deaths == " " ? "0" : _deaths,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(fontSize: 40.0,color: Colors.red)),
+                                        Text(
+                                            language==Language.ENGLISH?"Recovered":"Kurtarılanlar",
+                                            style: TextStyle(fontSize: 35.0,color: Colors.black),
+                                            textAlign: TextAlign.left),
+                                        Text(
+                                            _recovered == " "
+                                                ? "0"
+                                                : _recovered,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(fontSize: 40.0,color: Colors.green)),
+
+                                      ],
+                                    );
+                                  }),
+                            ),
+                          ),
+                        );
+
+                      case ConnectionState.none:
+                        return (Text("error"));
+                      case ConnectionState.waiting:
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      case ConnectionState.active:
+                        return Container();
+                      default:
+                        return Container();
+                    }
+                  },
+                ),
+              ),
+
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: buildMaterialButton(context, 'Nasıl Önlemler Almalıyız',
@@ -105,27 +162,37 @@ class _IndexPageState extends State<IndexPage> {
                     )),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Expanded(
-                      child: Text(
-                          language == Language.ENGLISH ? 'Country' : 'Ülke',
-                          textAlign: TextAlign.center,
-                          style: titleStyle),
-                    ),
-                    Expanded(
+                padding: const EdgeInsets.only(
+                    left: 15.0, bottom: 3.0, right: 8.0, top: 3.0),
+                child: Container(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Expanded(
                         child: Text(
-                            language == Language.ENGLISH ? 'Cases' : 'Hasta',
-                            textAlign: TextAlign.center,
-                            style: titleStyle)),
-                    Expanded(
-                        child: Text(
-                            language == Language.ENGLISH? 'Deaths' : 'Ölüm',
-                            textAlign: TextAlign.center,
-                            style: titleStyle)),
-                  ],
+                            language == Language.ENGLISH ? 'Country' : 'Ülke',
+                            textAlign: TextAlign.left,
+                            style: titleStyle),
+                      ),
+                      Expanded(
+                          child: Text(
+                              language == Language.ENGLISH ? 'Cases' : 'Hasta',
+                              textAlign: TextAlign.center,
+                              style: titleStyle)),
+                      Expanded(
+                          child: Text(
+                              language == Language.ENGLISH ? 'Deaths' : 'Ölüm',
+                              textAlign: TextAlign.center,
+                              style: titleStyle)),
+                      Expanded(
+                          child: Text(
+                              language == Language.ENGLISH
+                                  ? 'Recovered'
+                                  : 'Kurtarılan',
+                              textAlign: TextAlign.center,
+                              style: titleStyle))
+                    ],
+                  ),
                 ),
               ),
               FutureBuilder<List<Country>>(
@@ -138,14 +205,14 @@ class _IndexPageState extends State<IndexPage> {
                         padding: const EdgeInsets.all(8.0),
                         child: Container(
                           decoration: BoxDecoration(
-
-                           gradient: LinearGradient(
-                             begin: Alignment.centerLeft,
-
-                             end: Alignment.centerRight,
-                             colors: [Color(0xFFe53935),Colors.red,Color(0xFFe53935)]
-                           ),
-
+                              gradient: LinearGradient(
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                  colors: [
+                                    Color(0xFFe53935),
+                                    Colors.red,
+                                    Color(0xFFe53935)
+                                  ]),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(7.0)),
                               boxShadow: [
@@ -159,34 +226,53 @@ class _IndexPageState extends State<IndexPage> {
                             height: 400.0,
                             child: ListView.builder(
                                 shrinkWrap: false,
-                                itemCount: snapshot.data.length,
+                                itemCount: snapshot.data.length - 1,
                                 itemBuilder: (BuildContext context, index) {
                                   var _countryName =
                                       snapshot.data[index].countryName;
                                   var _cases = snapshot.data[index].cases;
                                   var _deaths = snapshot.data[index].deaths;
+                                  var _recovered =
+                                      snapshot.data[index].recovered;
                                   return Column(
                                     children: <Widget>[
                                       Padding(
-                                        padding: const EdgeInsets.all(8.0),
+                                        padding: const EdgeInsets.all(5.0),
                                         child: Row(
                                           children: <Widget>[
                                             Expanded(
-                                                child: Text(_countryName,
-                                                    textAlign:
-                                                        TextAlign.center)),
+                                                child: Text(
+                                                    _countryName == ' '
+                                                        ? "unknow"
+                                                        : _countryName,
+                                                    style: TextStyle(
+                                                        fontSize: 20.0),
+                                                    textAlign: TextAlign.left)),
+                                            Expanded(
+                                                child: Text(_cases,
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                        fontSize: 20.0))),
                                             Expanded(
                                                 child: Text(
-                                              _cases,
-                                              textAlign: TextAlign.center,
-                                            )),
+                                                    _deaths == " "
+                                                        ? "0"
+                                                        : _deaths,
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                        fontSize: 20.0))),
                                             Expanded(
-                                                child: Text(_deaths,
-                                                    textAlign:
-                                                        TextAlign.center)),
+                                                child: Text(
+                                                    _recovered == " "
+                                                        ? "0"
+                                                        : _recovered,
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                        fontSize: 20.0))),
                                           ],
                                         ),
-                                      )
+                                      ),
+                                      Divider(color: Colors.black),
                                     ],
                                   );
                                 }),
@@ -236,7 +322,7 @@ class _IndexPageState extends State<IndexPage> {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            language == Language.ENGLISH?symptoms1: belirti1  ,
+                            language == Language.ENGLISH ? symptoms1 : belirti1,
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 20.0,
@@ -255,10 +341,6 @@ class _IndexPageState extends State<IndexPage> {
                             textAlign: TextAlign.center,
                           ),
                         ),
-
-
-
-
                         Container(
                           width: MediaQuery.of(context).size.width * 1,
                           child: Image.asset(language == Language.ENGLISH
@@ -286,7 +368,7 @@ class _IndexPageState extends State<IndexPage> {
       },
       color: Color(0xFFe53935),
       child: Container(
-        width:MediaQuery.of(context).size.width * 1,
+        width: MediaQuery.of(context).size.width * 1,
         child: Center(
           child: Text(
             language == Language.ENGLISH ? englishText : text,
@@ -320,7 +402,7 @@ class _IndexPageState extends State<IndexPage> {
                     ),
                     leading: Image.asset('images/sneezingwoman.png'),
                     subtitle: Text(
-                      language == Language.ENGLISH? info1 : bilgi1,
+                      language == Language.ENGLISH ? info1 : bilgi1,
                       style: bottomWindowSubTitleStyle,
                     ),
                   ),

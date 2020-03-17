@@ -3,11 +3,11 @@ class Country {
   String countryName;
   String cases;
   String deaths;
-  String imageUrl;
+  String recovered;
 
 
 
-  Country({this.countryName,this.cases,this.deaths,this.imageUrl});
+  Country({this.countryName,this.cases,this.deaths,this.recovered});
 
 
 }
